@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Azure Blob JSON Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f9f9f9; }
+    h2 { color: #333; }
+    label { display: inline-block; width: 100px; margin-top: 10px; }
+    input, button {
+      padding: 8px 12px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      cursor: pointer;
+      background: #0078D4;
+      color: white;
+      border: none;
+      transition: 0.3s;
+    }
+    button:hover { background: #005a9e; }
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Azure Blob Storage JSON Save/Get/Update</h2>
+
+  <label>Start Time: </label>
+  <input type="text" id="startTime" placeholder="e.g. 6AM" /><br>
+
+  <label>End Time: </label>
+  <input type="text" id="endTime" placeholder="e.g. 8PM" /><br>
+
+  <button onclick="saveData()">Save</button>
+  <button onclick="updateData()">Update</button>
+  <button onclick="getData()">Get</button>
+
+  <div id="output"></div>
+
+  <script>
+    // Replace this with your SAS URL
+    const containerUrl = "https://jsondata1.blob.core.windows.net/durastion?sp=rcw&st=2025-10-03T13:46:25Z&se=2025-10-03T22:01:25Z&sv=2024-11-04&sr=c&sig=NkaupdemfeB6TrIJSeTy1D4VVCJks%2FEeIx%2BYzkOoTJo%3D";
+    const blobName = "duration.json"; // Blob file name
+
+    // Common upload function
+    async function uploadData(durationText, action) {
+      const uploadUrl = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
+      const jsonData = JSON.stringify({ duration: durationText });
+
+      try {
+        const response = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "x-ms-blob-type": "BlockBlob",
+            "Content-Type": "application/json"
+          },
+          body: jsonData
+        });
+
+        if (response.ok) {
+          document.getElementById("output").innerText = `✅ Duration ${action} successfully: ${durationText}`;
+        } else {
+          const text = await response.text();
+          document.getElementById("output").innerText = "❌ Error: " + text;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText = "❌ Exception: " + err.message;
+      }
+    }
+
+    function saveData() {
+      const start = document.getElementById("startTime").value;
+      const end = document.getElementById("endTime").value;
+
+      if (!start || !end) {
+        alert("Please enter both start and end time!");
+        return;
+      }
+
+      const duration = `${start} - ${end}`;
+      uploadData(duration, "saved");
+    }
+
+    function updateData() {
+      const start = document.getElementById("startTime").value;
+      const end = document.getElementById("endTime").value;
+
+      if (!start || !end) {
+        alert("Please enter both start and end time!");
+        return;
+      }
+
+      const duration = `${start} - ${end}`;
+      uploadData(duration, "updated");
+    }
+
+    async function getData() {
+      const downloadUrl = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
+
+      try {
+        const response = await fetch(downloadUrl);
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById("output").innerText = "📥 Duration fetched: " + data.duration;
+        } else {
+          const text = await response.text();
+          document.getElementById("output").innerText = "❌ Error: " + text;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText = "❌ Exception: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
