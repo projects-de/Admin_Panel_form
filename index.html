@@ -3,55 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <title>Still Waters Admin Panel</title>
-<style>
-  body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f3f6fb; margin: 0; padding: 0; }
-  header { background: linear-gradient(90deg, #0078D4, #005a9e); color: white; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 24px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
-  .logo-section img { height: 52px; width: 52px; border-radius: 50%; background: white; object-fit: cover; box-shadow: 0 2px 6px rgba(255,255,255,0.2); }
-  .header-text { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .header-text h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
-  .header-text span { font-size: 14px; opacity: 0.95; }
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f3f6fb; margin: 0; padding: 0; }
+    header { background: linear-gradient(90deg, #0078D4, #005a9e); color: white; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 24px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
+    .logo-section img { height: 52px; width: 52px; border-radius: 50%; background: white; object-fit: cover; box-shadow: 0 2px 6px rgba(255,255,255,0.2); }
+    .header-text { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .header-text h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
+    .header-text span { font-size: 14px; opacity: 0.95; }
 
-  .container { max-width: 750px; background: white; margin: 40px auto; padding: 32px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-  label { display: block; font-weight: 600; color: #333; margin-top: 18px; }
-  select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; }
-  select:focus, input:focus { border-color: #0078D4; outline: none; box-shadow: 0 0 5px rgba(0,120,212,0.3); background-color: #fff; }
-  .btn-group { margin-top: 26px; display: flex; gap: 12px; }
-  button { flex: 1; padding: 12px; border: none; border-radius: 6px; background: #0078D4; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-  button:hover { background: #005a9e; transform: translateY(-1px); }
+    .container { max-width: 750px; background: white; margin: 40px auto; padding: 32px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    label { display: block; font-weight: 600; color: #333; margin-top: 18px; }
+    select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; }
+    select:focus, input:focus { border-color: #0078D4; outline: none; box-shadow: 0 0 5px rgba(0,120,212,0.3); background-color: #fff; }
+    .btn-group { margin-top: 26px; display: flex; gap: 12px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 6px; background: #0078D4; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+    button:hover { background: #005a9e; transform: translateY(-1px); }
 
-  /* Output area */
-  #output { margin-top: 26px; }
-  .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; white-space: pre-wrap; }
+    /* Output area */
+    #output { margin-top: 26px; }
+    .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; white-space: pre-wrap; }
 
-  /* Table styling for Get results */
-  .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; }
-  table { width: 100%; border-collapse: collapse; min-width: 520px; }
-  thead th { position: sticky; top: 0; background: #f7faff; }
-  th, td { padding: 12px 14px; border-bottom: 1px solid #eef2fb; text-align: left; font-size: 14px; }
-  tbody tr:hover { background: #f9fbff; }
-  .cal-name { font-weight: 600; color: #0f3f77; }
-  .day-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; border: 1px solid #d9e9ff; font-size: 12px; }
-  .time-chip { display: inline-block; padding: 3px 7px; border-radius: 6px; background: #f5f7fb; border: 1px solid #e7ecf5; font-variant-numeric: tabular-nums; }
+    /* Table styling for Get results */
+    .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; min-width: 520px; }
+    thead th { position: sticky; top: 0; background: #f7faff; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #eef2fb; text-align: left; font-size: 14px; }
+    tbody tr:hover { background: #f9fbff; }
+    .cal-name { font-weight: 600; color: #0f3f77; }
+    .day-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; border: 1px solid #d9e9ff; font-size: 12px; }
+    .time-chip { display: inline-block; padding: 3px 7px; border-radius: 6px; background: #f5f7fb; border: 1px solid #e7ecf5; font-variant-numeric: tabular-nums; }
 
-  footer { text-align: center; margin-top: 48px; padding: 15px; font-size: 14px; color: #777; background-color: #f8f9fb; }
+    footer { text-align: center; margin-top: 48px; padding: 15px; font-size: 14px; color: #777; background-color: #f8f9fb; }
 
-  @media (max-width: 700px) {
-    .container { margin: 24px; padding: 22px; }
-    .header-text h1 { font-size: 18px; }
-    .header-text span { font-size: 13px; }
-  }
-</style>
-
+    @media (max-width: 700px) {
+      .container { margin: 24px; padding: 22px; }
+      .header-text h1 { font-size: 18px; }
+      .header-text span { font-size: 13px; }
+    }
+  </style>
 </head>
 <body>
   <!-- ===== HEADER ===== -->
   <header>
     <div class="logo-section">
       <img src="logo.png" alt="Still Waters Logo" />
-      <div class="header-text">
-        <h1>Still Waters Professional Counseling Services, Inc</h1>
-        <span>Admin Panel – Calendar Configuration</span>
-      </div>
+    </div>
+    <div class="header-text">
+      <h1>Still Waters Professional Counseling Services, Inc</h1>
+      <span>Admin Panel – Calendar Configuration</span>
     </div>
   </header>
 
@@ -77,7 +76,6 @@
     <select id="endTime" disabled></select>
 
     <div class="btn-group">
-      <!-- Removed Save button per request -->
       <button onclick="updateData()">🔄 Update</button>
       <button onclick="getData()">📥 Get</button>
     </div>
@@ -97,6 +95,7 @@
     const startSelect = document.getElementById("startTime");
     const endSelect = document.getElementById("endTime");
     const daySelect = document.getElementById("daySelect");
+    const output = document.getElementById("output");
 
     // Populate day dropdown
     days.forEach(day => {
@@ -168,12 +167,13 @@
           body: JSON.stringify(data, null, 2)
         });
 
-        document.getElementById("output").innerText =
-          response.ok
-            ? `✅ Successfully ${action}:\n` + JSON.stringify(data, null, 2)
-            : "❌ Error: " + (await response.text());
+        if (response.ok) {
+          showNotice(`✅ Successfully ${action}.`);
+        } else {
+          showNotice("❌ Error: " + (await response.text()));
+        }
       } catch (err) {
-        document.getElementById("output").innerText = "❌ Exception: " + err.message;
+        showNotice("❌ Exception: " + err.message);
       }
     }
 
@@ -191,26 +191,83 @@
 
       const existing = await fetchExistingData();
       if (!existing[calendar]) {
-        document.getElementById("output").innerText =
-          `❌ Calendar '${calendar}' not found in blob. Please initialize with the provided default JSON first.`;
+        showNotice(`❌ Calendar '${calendar}' not found in blob. Please initialize with the default JSON first.`);
         return;
       }
       if (!existing[calendar][day]) {
-        document.getElementById("output").innerText =
-          `❌ Day '${day}' not found under '${calendar}'. Make sure the default JSON contains all days.`;
+        showNotice(`❌ Day '${day}' not found under '${calendar}'. Make sure the default JSON contains all days.`);
         return;
       }
 
       existing[calendar][day] = { start, end };
-      document.getElementById("output").innerText =
-        `🔄 Updated '${calendar}' → '${day}' to ${start}–${end}`;
       await uploadData(existing, "updated");
+      renderDataTable(existing); // refresh table view
     }
 
     async function getData() {
       const existing = await fetchExistingData();
-      document.getElementById("output").innerText =
-        "📥 Current Blob Data:\n" + JSON.stringify(existing, null, 2);
+      renderDataTable(existing);
+    }
+
+    // ==== UI helpers ====
+    function showNotice(text) {
+      output.innerHTML = `<div class="notice">${text}</div>`;
+    }
+
+    function renderDataTable(data) {
+      // Flatten to rows: Calendar, Day, Start, End
+      const rows = [];
+      const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
+
+      Object.keys(data).sort().forEach(cal => {
+        const byDay = data[cal] || {};
+        Object.keys(byDay)
+          .sort((a, b) => (dayIndex[a] ?? 99) - (dayIndex[b] ?? 99))
+          .forEach(day => {
+            const { start = "", end = "" } = byDay[day] || {};
+            rows.push({ cal, day, start, end });
+          });
+      });
+
+      if (rows.length === 0) {
+        showNotice("📭 No data found in the blob.");
+        return;
+      }
+
+      const tableHtml = `
+        <div class="table-wrap">
+          <table aria-label="Calendar Schedules">
+            <thead>
+              <tr>
+                <th>Calendar</th>
+                <th>Day</th>
+                <th>Start</th>
+                <th>End</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr>
+                  <td class="cal-name">${escapeHtml(r.cal)}</td>
+                  <td><span class="day-badge">${escapeHtml(r.day)}</span></td>
+                  <td><span class="time-chip">${escapeHtml(r.start)}</span></td>
+                  <td><span class="time-chip">${escapeHtml(r.end)}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+      output.innerHTML = tableHtml;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
   </script>
 </body>
