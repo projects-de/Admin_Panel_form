@@ -1,0 +1,29 @@
+{
+  "Clinic Schedule": {
+    "Monday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Tuesday":   { "start": "9:00AM", "end": "5:00PM" },
+    "Wednesday": { "start": "9:00AM", "end": "5:00PM" },
+    "Thursday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Friday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Saturday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Sunday":    { "start": "9:00AM", "end": "5:00PM" }
+  },
+  "Augusta Clinic Scheduler": {
+    "Monday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Tuesday":   { "start": "9:00AM", "end": "5:00PM" },
+    "Wednesday": { "start": "9:00AM", "end": "5:00PM" },
+    "Thursday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Friday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Saturday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Sunday":    { "start": "9:00AM", "end": "5:00PM" }
+  },
+  "Macon Clinic Schedule (Test)": {
+    "Monday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Tuesday":   { "start": "9:00AM", "end": "5:00PM" },
+    "Wednesday": { "start": "9:00AM", "end": "5:00PM" },
+    "Thursday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Friday":    { "start": "9:00AM", "end": "5:00PM" },
+    "Saturday":  { "start": "9:00AM", "end": "5:00PM" },
+    "Sunday":    { "start": "9:00AM", "end": "5:00PM" }
+  }
+}

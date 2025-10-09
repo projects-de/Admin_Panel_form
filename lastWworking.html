@@ -2,125 +2,323 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Azure Blob JSON Demo</title>
+  <title>Still Waters Admin Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f9f9f9; }
-    h2 { color: #333; }
-    label { display: inline-block; width: 100px; margin-top: 10px; }
-    input, button {
-      padding: 8px 12px;
-      margin: 6px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f3f6fb;
+      margin: 0;
+      padding: 0;
     }
+
+    /* ===== HEADER STYLING ===== */
+    header {
+      background: linear-gradient(90deg, #0078D4, #005a9e);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 40px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-section img {
+      height: 55px;
+      width: 55px;
+      border-radius: 50%;
+      background: white;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(255,255,255,0.2);
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-text span {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .container {
+      max-width: 650px;
+      background: white;
+      margin: 50px auto;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-top: 20px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: 0.3s;
+      background-color: #fafafa;
+    }
+
+    select:focus, input:focus {
+      border-color: #0078D4;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,120,212,0.3);
+      background-color: #fff;
+    }
+
+    .btn-group {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+    }
+
     button {
-      cursor: pointer;
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
       background: #0078D4;
       color: white;
-      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
       transition: 0.3s;
     }
-    button:hover { background: #005a9e; }
+
+    button:hover {
+      background: #005a9e;
+      transform: translateY(-1px);
+    }
+
     #output {
-      margin-top: 20px;
+      margin-top: 30px;
       padding: 15px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-weight: bold;
+      border-radius: 8px;
+      background: #f0f4ff;
+      border: 1px solid #ccdfff;
+      color: #333;
+      font-weight: 500;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 15px;
+      font-size: 14px;
+      color: #777;
+      background-color: #f8f9fb;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+      .container {
+        margin: 25px;
+        padding: 25px;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Azure Blob Storage JSON Save/Get/Update</h2>
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="logo-section">
+      <img src="logo.png" alt="Still Waters Logo" />
+      <div class="header-text">
+        <h1>Still Waters Professional Counseling Services, Inc</h1>
+        <span>Admin Panel – Calander Configuration</span>
+      </div>
+    </div>
+  </header>
 
-  <label>Start Time: </label>
-  <input type="text" id="startTime" placeholder="e.g. 6AM" /><br>
+  <!-- ===== MAIN PANEL ===== -->
+  <div class="container">
+    <label for="calendarSelect">Select Calendar</label>
+    <select id="calendarSelect" onchange="onCalendarChange()">
+      <option value="">-- Select Calendar --</option>
+      <option value="MainCalendar">Main Calendar</option>
+      <option value="HolidayCalendar">Holiday Calendar</option>
+      <option value="MaintenanceCalendar">Maintenance Calendar</option>
+    </select>
 
-  <label>End Time: </label>
-  <input type="text" id="endTime" placeholder="e.g. 8PM" /><br>
+    <label for="daySelect">Select Day</label>
+    <select id="daySelect" onchange="onDayChange()" disabled>
+      <option value="">-- Select Day --</option>
+    </select>
 
-  <button onclick="saveData()">Save</button>
-  <button onclick="updateData()">Update</button>
-  <button onclick="getData()">Get</button>
+    <label for="startTime">Start Time</label>
+    <select id="startTime" disabled></select>
 
-  <div id="output"></div>
+    <label for="endTime">End Time</label>
+    <select id="endTime" disabled></select>
 
-  <script>
-    // Replace this with your SAS URL
-    const containerUrl = "https://jsondata1.blob.core.windows.net/durastion/duration.json?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2030-04-02T01:25:11Z&st=2025-10-07T17:10:11Z&spr=https,http&sig=zxKkoYOveKqc3I%2Bzz49eG5x%2FOjMV%2BJXHtsFoTcPENB0%3D";
-    const blobName = "duration.json"; // Blob file name
+    <div class="btn-group">
+      <button onclick="saveData()">💾 Save</button>
+      <button onclick="updateData()">🔄 Update</button>
+      <button onclick="getData()">📥 Get</button>
+    </div>
 
-    // Common upload function
-    async function uploadData(durationText, action) {
-      const uploadUrl = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
-      const jsonData = JSON.stringify({ duration: durationText });
+    <div id="output"></div>
+  </div>
 
-      try {
-        const response = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: {
-            "x-ms-blob-type": "BlockBlob",
-            "Content-Type": "application/json"
-          },
-          body: jsonData
-        });
+  <footer>© 2025 Still Waters Professional Counseling Services, Inc — Admin Panel</footer>
 
-        if (response.ok) {
-          document.getElementById("output").innerText = `✅ Duration ${action} successfully: ${durationText}`;
-        } else {
-          const text = await response.text();
-          document.getElementById("output").innerText = "❌ Error: " + text;
-        }
-      } catch (err) {
-        console.error(err);
-        document.getElementById("output").innerText = "❌ Exception: " + err.message;
+ <script>
+  const containerUrl =
+    "https://jsondata1.blob.core.windows.net/durastion/duration.json?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2030-04-02T01:25:11Z&st=2025-10-07T17:10:11Z&spr=https,http&sig=zxKkoYOveKqc3I%2Bzz49eG5x%2FOjMV%2BJXHtsFoTcPENB0%3D";
+  const blobName = "duration.json";
+
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const startSelect = document.getElementById("startTime");
+  const endSelect = document.getElementById("endTime");
+  const daySelect = document.getElementById("daySelect");
+
+  // Populate day dropdown
+  days.forEach(day => {
+    const opt = document.createElement("option");
+    opt.value = day;
+    opt.textContent = day;
+    daySelect.appendChild(opt);
+  });
+
+  // Generate time options (6AM–10PM)
+  function generateTimeOptions() {
+    const times = [];
+    for (let h = 6; h <= 22; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        let hour = h % 12 === 0 ? 12 : h % 12;
+        let ampm = h < 12 ? "AM" : "PM";
+        times.push(`${hour}:${m === 0 ? "00" : m}${ampm}`);
       }
     }
+    return times;
+  }
 
-    function saveData() {
-      const start = document.getElementById("startTime").value;
-      const end = document.getElementById("endTime").value;
+  const allTimes = generateTimeOptions();
+  allTimes.forEach(t => {
+    const opt1 = document.createElement("option");
+    opt1.value = t;
+    opt1.textContent = t;
+    startSelect.appendChild(opt1);
 
-      if (!start || !end) {
-        alert("Please enter both start and end time!");
-        return;
-      }
+    const opt2 = document.createElement("option");
+    opt2.value = t;
+    opt2.textContent = t;
+    endSelect.appendChild(opt2);
+  });
 
-      const duration = `${start} - ${end}`;
-      uploadData(duration, "saved");
+  function onCalendarChange() {
+    const calendar = document.getElementById("calendarSelect").value;
+    daySelect.disabled = !calendar;
+    startSelect.disabled = true;
+    endSelect.disabled = true;
+  }
+
+  function onDayChange() {
+    startSelect.disabled = false;
+    endSelect.disabled = false;
+  }
+
+  async function fetchExistingData() {
+    const url = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
+    try {
+      const response = await fetch(url);
+      if (response.ok) return await response.json();
+      return {};
+    } catch {
+      return {};
+    }
+  }
+
+  async function uploadData(data, action) {
+    const uploadUrl = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
+    try {
+      const response = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "x-ms-blob-type": "BlockBlob",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data, null, 2)
+      });
+
+      document.getElementById("output").innerText =
+        response.ok
+          ? `✅ Successfully ${action}:\n${JSON.stringify(data, null, 2)}`
+          : "❌ Error: " + (await response.text());
+    } catch (err) {
+      document.getElementById("output").innerText = "❌ Exception: " + err.message;
+    }
+  }
+
+  async function saveOrUpdateData() {
+    const calendar = document.getElementById("calendarSelect").value;
+    const day = document.getElementById("daySelect").value;
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+
+    if (!calendar || !day || !start || !end) {
+      alert("Please select all fields!");
+      return;
     }
 
-    function updateData() {
-      const start = document.getElementById("startTime").value;
-      const end = document.getElementById("endTime").value;
+    const existing = await fetchExistingData();
+    let message = "";
 
-      if (!start || !end) {
-        alert("Please enter both start and end time!");
-        return;
-      }
-
-      const duration = `${start} - ${end}`;
-      uploadData(duration, "updated");
+    // Case 1: Calendar does not exist → create it
+    if (!existing[calendar]) {
+      existing[calendar] = {};
+      existing[calendar][day] = { start, end };
+      message = `🆕 Created new calendar '${calendar}' with day '${day}'`;
+    } 
+    // Case 2: Calendar exists but day doesn’t → add new day
+    else if (!existing[calendar][day]) {
+      existing[calendar][day] = { start, end };
+      message = `➕ Added new day '${day}' under calendar '${calendar}'`;
+    } 
+    // Case 3: Calendar & day both exist → update times
+    else {
+      existing[calendar][day] = { start, end };
+      message = `🔄 Updated existing day '${day}' under calendar '${calendar}'`;
     }
 
-    async function getData() {
-      const downloadUrl = containerUrl.replace(/\?.*/, "") + "/" + blobName + containerUrl.match(/\?.*/)[0];
+    document.getElementById("output").innerText = message;
+    uploadData(existing, "saved/updated");
+  }
 
-      try {
-        const response = await fetch(downloadUrl);
-        if (response.ok) {
-          const data = await response.json();
-          document.getElementById("output").innerText = "📥 Duration fetched: " + data.duration;
-        } else {
-          const text = await response.text();
-          document.getElementById("output").innerText = "❌ Error: " + text;
-        }
-      } catch (err) {
-        console.error(err);
-        document.getElementById("output").innerText = "❌ Exception: " + err.message;
-      }
-    }
-  </script>
-</body>
-</html>
+  async function getData() {
+    const existing = await fetchExistingData();
+    document.getElementById("output").innerText =
+      "📥 Current Blob Data:\n" + JSON.stringify(existing, null, 2);
+  }
+
+  // Keep buttons consistent
+  async function saveData() { await saveOrUpdateData(); }
+  async function updateData() { await saveOrUpdateData(); }
+</script>
