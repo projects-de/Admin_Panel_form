@@ -19,11 +19,12 @@
     button { flex: 1; padding: 12px; border: none; border-radius: 6px; background: #0078D4; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; }
     button:hover { background: #005a9e; transform: translateY(-1px); }
 
-    /* Output area */
-    #output { margin-top: 26px; }
-    .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; white-space: pre-wrap; }
+    /* Toast (separate from table) */
+    #toast { margin-top: 16px; }
+    .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; }
 
-    /* Table styling for Get results */
+    /* Output/Table area */
+    #output { margin-top: 16px; }
     .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; }
     table { width: 100%; border-collapse: collapse; min-width: 520px; }
     thead th { position: sticky; top: 0; background: #f7faff; }
@@ -80,6 +81,10 @@
       <button onclick="getData()">📥 Get</button>
     </div>
 
+    <!-- Success/Error notice lives here and won't be overwritten by the table -->
+    <div id="toast"></div>
+
+    <!-- Table output -->
     <div id="output"></div>
   </div>
 
@@ -96,6 +101,7 @@
     const endSelect = document.getElementById("endTime");
     const daySelect = document.getElementById("daySelect");
     const output = document.getElementById("output");
+    const toast = document.getElementById("toast");
 
     // Populate day dropdown
     days.forEach(day => {
@@ -105,26 +111,21 @@
       daySelect.appendChild(opt);
     });
 
-    // Generate time options (6AM–10PM, 30-min steps)
-    function generateTimeOptions() {
+    // Generate HOURLY time options (6AM–10PM) and display like "6AM", "12PM", etc.
+    function generateHourOptions() {
       const times = [];
       for (let h = 6; h <= 22; h++) {
-        for (let m = 0; m < 60; m += 30) {
-          const hour12 = h % 12 === 0 ? 12 : h % 12;
-          const ampm = h < 12 ? "AM" : "PM";
-          const mm = m === 0 ? "00" : m.toString().padStart(2, "0");
-          times.push(`${hour12}:${mm}${ampm}`);
-        }
+        const hour12 = (h % 12 === 0) ? 12 : (h % 12);
+        const ampm = h < 12 ? "AM" : "PM";
+        times.push(`${hour12}${ampm}`);
       }
       return times;
     }
 
-    const allTimes = generateTimeOptions();
-    allTimes.forEach(t => {
-      const opt1 = document.createElement("option");
-      opt1.value = t; opt1.textContent = t; startSelect.appendChild(opt1);
-      const opt2 = document.createElement("option");
-      opt2.value = t; opt2.textContent = t; endSelect.appendChild(opt2);
+    const hourTimes = generateHourOptions();
+    hourTimes.forEach(t => {
+      const o1 = document.createElement("option"); o1.value = t; o1.textContent = t; startSelect.appendChild(o1);
+      const o2 = document.createElement("option"); o2.value = t; o2.textContent = t; endSelect.appendChild(o2);
     });
 
     function onCalendarChange() {
@@ -133,7 +134,6 @@
       startSelect.disabled = true;
       endSelect.disabled = true;
     }
-
     function onDayChange() {
       startSelect.disabled = false;
       endSelect.disabled = false;
@@ -160,10 +160,7 @@
       try {
         const response = await fetch(buildBlobUrl(), {
           method: "PUT",
-          headers: {
-            "x-ms-blob-type": "BlockBlob",
-            "Content-Type": "application/json"
-          },
+          headers: { "x-ms-blob-type": "BlockBlob", "Content-Type": "application/json" },
           body: JSON.stringify(data, null, 2)
         });
 
@@ -177,17 +174,37 @@
       }
     }
 
+    // Normalize to "9AM"/"12PM" etc. (in case options ever change later)
+    function toHourLabel(val) {
+      if (!val) return val;
+      // already "9AM" style
+      if (/^\d{1,2}(AM|PM)$/.test(val)) return val;
+      // convert "9:00AM" -> "9AM", keep ":30" if ever present
+      const m = val.match(/^(\d{1,2})(?::(00|30))?(AM|PM)$/);
+      if (m) {
+        const hour = m[1];
+        const mins = m[2];
+        const ap = m[3];
+        return mins && mins !== "00" ? `${hour}:${mins}${ap}` : `${hour}${ap}`;
+      }
+      return val;
+    }
+
     // === UPDATE-ONLY behavior ===
     async function updateData() {
       const calendar = document.getElementById("calendarSelect").value;
       const day = document.getElementById("daySelect").value;
-      const start = document.getElementById("startTime").value;
-      const end = document.getElementById("endTime").value;
+      let start = document.getElementById("startTime").value;
+      let end = document.getElementById("endTime").value;
 
       if (!calendar || !day || !start || !end) {
         alert("Please select all fields!");
         return;
       }
+
+      // Enforce "9AM"/"12PM" style
+      start = toHourLabel(start);
+      end   = toHourLabel(end);
 
       const existing = await fetchExistingData();
       if (!existing[calendar]) {
@@ -201,7 +218,7 @@
 
       existing[calendar][day] = { start, end };
       await uploadData(existing, "updated");
-      renderDataTable(existing); // refresh table view
+      renderDataTable(existing); // refresh table view (toast remains visible)
     }
 
     async function getData() {
@@ -211,7 +228,7 @@
 
     // ==== UI helpers ====
     function showNotice(text) {
-      output.innerHTML = `<div class="notice">${text}</div>`;
+      toast.innerHTML = `<div class="notice">${text}</div>`;
     }
 
     function renderDataTable(data) {
@@ -230,7 +247,7 @@
       });
 
       if (rows.length === 0) {
-        showNotice("📭 No data found in the blob.");
+        output.innerHTML = `<div class="notice">📭 No data found in the blob.</div>`;
         return;
       }
 
