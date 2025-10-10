@@ -140,8 +140,13 @@
     const o2 = document.createElement("option"); o2.value = t; o2.textContent = t; endSelect.appendChild(o2);
   });
 
-  function onCalendarChange() {
+   function onCalendarChange() {
     const calendar = document.getElementById("calendarSelect").value;
+
+    // Reset and disable day/time fields when calendar changes
+    daySelect.value = "";
+    startSelect.value = "";
+    endSelect.value = "";
     daySelect.disabled = !calendar;
     startSelect.disabled = true;
     endSelect.disabled = true;
