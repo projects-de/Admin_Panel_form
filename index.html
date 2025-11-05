@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
@@ -16,13 +16,52 @@
     .header-text h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
     .header-text span { font-size: 14px; opacity: 0.95; }
 
-    .container { max-width: 750px; background: white; margin: 40px auto; padding: 32px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .container { max-width: 750px; background: white; margin: 40px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    
+    /* --- Tab Styles --- */
+    .tab-nav { display: flex; border-bottom: 2px solid #e0e6ed; }
+    .tab-btn { padding: 14px 22px; font-size: 16px; font-weight: 600; border: none; background: none; cursor: pointer; color: #555; position: relative; }
+    .tab-btn:hover { background: #f9faff; }
+    .tab-btn.active { color: #0078D4; }
+    .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #0078D4; }
+    
+    .tab-content { padding: 32px; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    
     label { display: block; font-weight: 600; color: #333; margin-top: 18px; }
-    select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; }
+    select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; box-sizing: border-box; }
     select:focus, input:focus { border-color: #0078D4; outline: none; box-shadow: 0 0 5px rgba(0,120,212,0.3); background-color: #fff; }
     .btn-group { margin-top: 26px; display: flex; gap: 12px; }
     button { flex: 1; padding: 12px; border: none; border-radius: 6px; background: #0078D4; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; }
     button:hover { background: #005a9e; transform: translateY(-1px); }
+    button.btn-secondary { background: #6c757d; }
+    button.btn-secondary:hover { background: #5a6268; }
+
+    /* Flex row for side-by-side inputs */
+    .form-row { display: flex; gap: 12px; }
+    .form-row > div { flex: 1; }
+    
+    /* Slot container styles */
+    #slotsContainer {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #fdfdfd;
+    }
+    #slotsContainer label {
+      display: block;
+      font-weight: 500;
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #slotsContainer label:hover { background: #f0f7ff; }
+    #slotsContainer input { width: auto; margin-right: 10px; }
 
     /* Toast (separate from table) */
     #toast { margin-top: 16px; }
@@ -38,18 +77,21 @@
     .cal-name { font-weight: 600; color: #0f3f77; }
     .day-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; border: 1px solid #d9e9ff; font-size: 12px; }
     .time-chip { display: inline-block; padding: 3px 7px; border-radius: 6px; background: #f5f7fb; border: 1px solid #e7ecf5; font-variant-numeric: tabular-nums; }
+    td strong { color: #0078D4; font-size: 15px; }
+
 
     footer { text-align: center; margin-top: 48px; padding: 15px; font-size: 14px; color: #777; background-color: #f8f9fb; }
 
     @media (max-width: 700px) {
-      .container { margin: 24px; padding: 22px; }
+      .container { margin: 24px; padding: 0; }
+      .tab-content { padding: 22px; }
       .header-text h1 { font-size: 18px; }
       .header-text span { font-size: 13px; }
+      .form-row { flex-direction: column; gap: 0; }
     }
   </style>
 </head>
 <body>
-  <!-- ===== HEADER ===== -->
   <header>
     <div class="logo-section">
       <img src="logo.png" alt="Still Waters Logo" />
@@ -60,37 +102,92 @@
     </div>
   </header>
 
-  <!-- ===== MAIN PANEL ===== -->
   <div class="container">
-    <label for="calendarSelect">Select Calendar</label>
-    <select id="calendarSelect" onchange="onCalendarChange()">
-      <option value="">-- Select Calendar --</option>
-      <option value="Clinic Schedule">Clinic Schedule</option>
-      <option value="Augusta Clinic Scheduler">Augusta Clinic Scheduler</option>
-      <option value="Macon Clinic Schedule (Test)">Macon Clinic Schedule (Test)</option>
-    </select>
-
-    <label for="daySelect">Select Day</label>
-    <select id="daySelect" onchange="onDayChange()" disabled>
-      <option value="">-- Select Day --</option>
-    </select>
-
-    <label for="startTime">Start Time</label>
-    <select id="startTime" disabled></select>
-
-    <label for="endTime">End Time</label>
-    <select id="endTime" disabled></select>
-
-    <div class="btn-group">
-      <button onclick="updateData()">🔄 Update</button>
-      <button onclick="getData()">📥 Get</button>
+    
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab(event, 'daily')">Daily Schedule</button>
+      <button class="tab-btn" onclick="showTab(event, 'slots')">Slot-Specific Capacity</button>
     </div>
 
-    <!-- Success/Error notice lives here and won't be overwritten by the table -->
-    <div id="toast"></div>
+    <div id="daily" class="tab-pane active">
+      <div class="tab-content">
+        <label for="calendarSelect">Select Calendar</label>
+        <select id="calendarSelect" onchange="onCalendarChange()">
+          <option value="">-- Select Calendar --</option>
+          <option value="Clinic Schedule">Clinic Schedule</option>
+          <option value="Augusta Clinic Scheduler">Augusta Clinic Scheduler</option>
+          <option value="Macon Clinic Schedule (Test)">Macon Clinic Schedule (Test)</option>
+        </select>
 
-    <!-- Table output -->
-    <div id="output"></div>
+        <label for="daySelect">Select Day</label>
+        <select id="daySelect" onchange="onDayChange()" disabled>
+          <option value="">-- Select Day --</option>
+        </select>
+
+        <label for="startTime">Start Time</label>
+        <select id="startTime" disabled></select>
+
+        <label for="endTime">End Time</label>
+        <select id="endTime" disabled></select>
+
+        <div class="btn-group">
+          <button onclick="updateDailyData()">🔄 Update Daily</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="slots" class="tab-pane">
+      <div class="tab-content">
+        <label for="slotCalendarSelect">Select Calendar</label>
+        <select id="slotCalendarSelect">
+          <option value="">-- Select Calendar --</option>
+          <option value="Clinic Schedule">Clinic Schedule</option>
+          <option value="Augusta Clinic Scheduler">Augusta Clinic Scheduler</option>
+          <option value="Macon Clinic Schedule (Test)">Macon Clinic Schedule (Test)</option>
+        </select>
+
+        <label for="slotDateSelect">Select Date</label>
+        <input type="date" id="slotDateSelect" />
+        
+        <div class="form-row">
+          <div>
+            <label for="slotDuration">Slot Duration (min)</label>
+            <input type="number" id="slotDuration" value="30" />
+          </div>
+          <div>
+            <label for="slotStep">Slot Step (min)</label>
+            <input type="number" id="slotStep" value="30" />
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button onclick="loadAvailableSlots()" class="btn-secondary">📥 Load Available Slots</button>
+        </div>
+        
+        <div id="slotsContainer">
+          <em style="color: #777;">Select a calendar, date, and load slots...</em>
+        </div>
+
+        <label for="slotDoctorCount">Doctor Count for Selected Slots</label>
+        <input type="number" id="slotDoctorCount" min="0" value="2" />
+        
+        <div class="btn-group">
+          <button onclick="updateSlotData()">✅ Apply Capacity to Selected</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="padding: 0 32px 32px 32px;">
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+      
+      <div class="btn-group">
+        <button onclick="getData()" style="background: #555;">🔄 Refresh All Saved Data</button>
+      </div>
+      
+      <div id="toast"></div>
+      <div id="output"></div>
+    </div>
+
   </div>
 
   <footer>© 2025 Still Waters Professional Counseling Services, Inc — Admin Panel</footer>
@@ -101,14 +198,87 @@
     "https://jsondata1.blob.core.windows.net/durastion/duration.json?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2030-04-02T01:25:11Z&st=2025-10-07T17:10:11Z&spr=https,http&sig=zxKkoYOveKqc3I%2Bzz49eG5x%2FOjMV%2BJXHtsFoTcPENB0%3D";
   const blobName = "duration.json";
 
+  // === START: Copied Logic from your Booking Script ===
+  var CONFIG = {
+    GET_SLOTS_URL: 'https://sw-function-b6c4h9cnexhbh4g3.canadacentral-01.azurewebsites.net/api/Calender',
+    GET_SLOTS_KEY: '', // Add your function key here if required
+    TIMEZONE: 'Central Standard Time',
+  };
+  var slotsCache = null; // Cache for the slot windows
+
+  function withKey(url, key) {
+    if (!key) return url;
+    try { var u = new URL(url); u.searchParams.set('code', key); return u.toString(); }
+    catch { return url + (url.includes('?') ? '&' : '?') + 'code=' + encodeURIComponent(key); }
+  }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function convertTo24Hour(s){ var t=s.trim().split(' '), hm=t[0].split(':'), h=+hm[0], m=+hm[1], p=t[1]; if(p==='PM'&&h!==12)h+=12; if(p==='AM'&&h===12)h=0; return {hours:h, minutes:m}; }
+  function hmToMinutes(h,m){ return h*60+m; }
+  function minutesToHM(total){ return {hour: Math.floor(total/60), minute: total%60}; }
+  function addMinutesToHM(h, m, d){ var total=h*60+m+d; return {hour:Math.floor(total/60), minute:total%60}; }
+  function t12fmt(h, m){ var ap=h>=12?'PM':'AM', hh=h%12===0?12:(h%12); return hh+':'+p2(m)+' '+ap; }
+
+  // Parses "28, Nov 2025, 9:00 AM - 5:00 PM"
+  function parseSlotString(slotStr){
+    var parts = slotStr.split(', ');
+    var datePart = parts[0], timePart = parts[1];
+    var [dayStr, monStr, yearStr] = datePart.split(' ');
+    var day = parseInt(dayStr,10), year = parseInt(yearStr,10);
+    var monthMap = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+    var monthNum = monthMap[monStr];
+    var [startStr, endStr] = timePart.split(' - ');
+    var start24 = convertTo24Hour(startStr), end24 = convertTo24Hour(endStr);
+    return { y:year, m:monthNum, d:day, dateStr:datePart, startMin:hmToMinutes(start24.hours,start24.minutes), endMin:hmToMinutes(end24.hours,end24.minutes) };
+  }
+
+  // Fetches and caches the *WINDOWS* from the API
+  async function adminFetchSlotWindows(){
+    // Invalidate cache if it's old (e.g., > 5 minutes)
+    // This simple implementation just re-fetches every time.
+    // For a real app, you might add a timestamp and cache for 5 mins.
+    slotsCache = null; 
+    
+    if (slotsCache) return slotsCache;
+    showNotice('Fetching slot windows from API...');
+    const url = withKey(CONFIG.GET_SLOTS_URL, CONFIG.GET_SLOTS_KEY);
+    try{
+      const resp = await fetch(url + `&t=${new Date().getTime()}`, { // cache-bust
+        method:'GET', headers:{'Accept':'application/json'} 
+      });
+      const text = await resp.text();
+      if (!resp.ok) throw new Error('Failed to load slots ('+resp.status+')');
+      const data = text ? JSON.parse(text) : {};
+      const list = Array.isArray(data) ? data
+        : (Array.isArray(data.free_slots) ? data.free_slots
+        : (Array.isArray(data.freeSlots) ? data.freeSlots
+        : (Array.isArray(data.slots) ? data.slots : [])));
+      
+      slotsCache = list.map(parseSlotString);
+      showNotice('✅ Successfully fetched ' + slotsCache.length + ' availability windows.');
+      return slotsCache;
+    }catch(e){ 
+      console.error(e); 
+      showNotice('❌ Failed to load available appointment times.'); 
+      return []; 
+    }
+  }
+  // === END: Copied Logic from your Booking Script ===
+
+
+  // === Global Admin Panel State ===
   const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  const output = document.getElementById("output");
+  const toast = document.getElementById("toast");
+  
+  // --- Tab 1 (Daily) Elements ---
   const startSelect = document.getElementById("startTime");
   const endSelect = document.getElementById("endTime");
   const daySelect = document.getElementById("daySelect");
-  const output = document.getElementById("output");
-  const toast = document.getElementById("toast");
+  
+  // --- Tab 2 (Slot) Elements ---
+  const slotsContainer = document.getElementById("slotsContainer");
 
-  // Helper: timestamp string
+  // === Utility Functions ===
   function nowStamp() {
     try {
       return new Date().toLocaleString(undefined, {
@@ -119,6 +289,19 @@
       return new Date().toISOString();
     }
   }
+  
+  function showTab(evt, tabName) {
+    const tabcontent = document.getElementsByClassName("tab-pane");
+    for (let i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    const tablinks = document.getElementsByClassName("tab-btn");
+    for (let i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
 
   // Populate day dropdown
   days.forEach(day => {
@@ -128,7 +311,7 @@
     daySelect.appendChild(opt);
   });
 
-  // Generate HOURLY time options (6AM–10PM) and display like "6AM", "12PM", etc.
+  // Generate HOURLY time options (6AM–10PM)
   function generateHourOptions() {
     const times = [];
     for (let h = 6; h <= 22; h++) {
@@ -145,23 +328,26 @@
     const o2 = document.createElement("option"); o2.value = t; o2.textContent = t; endSelect.appendChild(o2);
   });
 
-   function onCalendarChange() {
+  function onCalendarChange() {
     const calendar = document.getElementById("calendarSelect").value;
-
-    // Reset and disable day/time fields when calendar changes
     daySelect.value = "";
     startSelect.value = "";
     endSelect.value = "";
+    // doctorCountInput.value = "1"; // REMOVED
     daySelect.disabled = !calendar;
     startSelect.disabled = true;
     endSelect.disabled = true;
+    // doctorCountInput.disabled = true; // REMOVED
   }
+
   function onDayChange() {
     startSelect.disabled = false;
     endSelect.disabled = false;
+    // doctorCountInput.disabled = false; // REMOVED
   }
 
-  // Build URL to the blob with SAS
+  // === Core Data Functions (Shared) ===
+
   function buildBlobUrl() {
     const base = containerUrl.replace(/\?.*/, "");
     const sas = containerUrl.match(/\?.*/)[0];
@@ -170,7 +356,7 @@
 
   async function fetchExistingData() {
     try {
-      const response = await fetch(buildBlobUrl());
+      const response = await fetch(buildBlobUrl() + `&t=${new Date().getTime()}`); // Add cache buster
       if (response.ok) return await response.json();
       return {};
     } catch {
@@ -179,6 +365,7 @@
   }
 
   function setButtonsDisabled(disabled) {
+    // Find all buttons EXCEPT the tab navigation buttons
     for (const btn of document.querySelectorAll(".btn-group button")) {
       btn.disabled = disabled;
       btn.style.opacity = disabled ? 0.7 : 1;
@@ -186,7 +373,6 @@
     }
   }
 
-  // Toast (does not get overwritten by table)
   function showNotice(text) {
     toast.innerHTML = `<div class="notice">${text}</div>`;
   }
@@ -199,9 +385,7 @@
         headers: { "x-ms-blob-type": "BlockBlob", "Content-Type": "application/json" },
         body: JSON.stringify(data, null, 2)
       });
-
       if (response.ok) {
-        // ✅ On update we only show the success toast with a timestamp
         showNotice(`✅ ${action} at <strong>${nowStamp()}</strong>`);
       } else {
         showNotice("❌ Error: " + (await response.text()));
@@ -213,83 +397,185 @@
     }
   }
 
-  // Normalize to "9AM"/"12PM" etc. (in case options ever change later)
   function toHourLabel(val) {
     if (!val) return val;
-    // already "9AM" style
     if (/^\d{1,2}(AM|PM)$/.test(val)) return val;
-    // convert "9:00AM" -> "9AM", keep ":30" if ever present
     const m = val.match(/^(\d{1,2})(?::(00|30))?(AM|PM)$/);
     if (m) {
-      const hour = m[1];
-      const mins = m[2];
-      const ap = m[3];
+      const hour = m[1]; const mins = m[2]; const ap = m[3];
       return mins && mins !== "00" ? `${hour}:${mins}${ap}` : `${hour}${ap}`;
     }
     return val;
   }
+  
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
-  // === UPDATE-ONLY behavior ===
-  async function updateData() {
+  // === Tab 1: Daily Schedule Logic (MODIFIED) ===
+
+  async function updateDailyData() {
     const calendar = document.getElementById("calendarSelect").value;
     const day = document.getElementById("daySelect").value;
     let start = document.getElementById("startTime").value;
     let end = document.getElementById("endTime").value;
+    // let doctors = ... // REMOVED
 
     if (!calendar || !day || !start || !end) {
-      alert("Please select all fields!");
+      alert("Please select all fields for Daily Schedule!");
       return;
     }
-
-    // Enforce "9AM"/"12PM" style
     start = toHourLabel(start);
-    end   = toHourLabel(end);
+    end = toHourLabel(end);
 
     const existing = await fetchExistingData();
     if (!existing[calendar]) {
-      showNotice(`❌ Calendar '${calendar}' not found in blob. Please initialize with the default JSON first.`);
-      return;
+      existing[calendar] = {};
     }
-    if (!existing[calendar][day]) {
-      showNotice(`❌ Day '${day}' not found under '${calendar}'. Make sure the default JSON contains all days.`);
-      return;
-    }
-
+    
+    // This saves to the root, e.g., existing['Clinic Schedule']['Monday']
+    // MODIFIED: Only save start and end. This will overwrite any old "doctors" property.
     existing[calendar][day] = { start, end };
 
-    // Clear table area (we only want the toast on update)
-    output.innerHTML = "";
-    await uploadData(existing, "Updated");
+    output.innerHTML = ""; // Clear table on update, user must click "Get"
+    await uploadData(existing, "Updated Daily Schedule");
   }
+
+  // === Tab 2: Slot-Specific Logic ===
+
+  async function loadAvailableSlots() {
+    const dateInput = document.getElementById("slotDateSelect").value;
+    const durationMin = parseInt(document.getElementById("slotDuration").value, 10) || 30;
+    const stepMin = parseInt(document.getElementById("slotStep").value, 10) || 30;
+    
+    if (!dateInput) {
+      alert("Please select a date.");
+      return;
+    }
+
+    const parts = dateInput.split('-'); // YYYY-MM-DD
+    const selYear = parseInt(parts[0], 10);
+    const selMonth = parseInt(parts[1], 10); // 1-12
+    const selDay = parseInt(parts[2], 10);
+
+    const allWindows = await adminFetchSlotWindows();
+    if (!allWindows || allWindows.length === 0) {
+      slotsContainer.innerHTML = `<em style="color: #a94442;">No availability windows returned from API.</em>`;
+      return;
+    }
+
+    const windowsForDay = allWindows.filter(w => 
+      w.y === selYear && w.m === selMonth && w.d === selDay
+    );
+
+    if (windowsForDay.length === 0) {
+      slotsContainer.innerHTML = `<em style="color: #777;">No availability windows found for ${dateInput}.</em>`;
+      return;
+    }
+
+    slotsContainer.innerHTML = '';
+    let slotsFound = 0;
+    
+    windowsForDay.forEach(w => {
+      for (let m = w.startMin; m + durationMin <= w.endMin; m += stepMin) {
+        slotsFound++;
+        const startHM = minutesToHM(m);
+        const endHM = addMinutesToHM(startHM.hour, startHM.minute, durationMin);
+
+        const startTimeStr = t12fmt(startHM.hour, startHM.minute); // "9:00 AM"
+        const endTimeStr = t12fmt(endHM.hour, endHM.minute); // "9:30 AM"
+        
+        const slotValue = startTimeStr; 
+        const slotLabel = `${startTimeStr} - ${endTimeStr}`;
+
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${escapeHtml(slotValue)}"> ${escapeHtml(slotLabel)}`;
+        slotsContainer.appendChild(label);
+      }
+    });
+    
+    if (slotsFound === 0) {
+      slotsContainer.innerHTML = `<em style="color: #777;">No slots of ${durationMin}min fit in the available windows for ${dateInput}.</em>`;
+    }
+  }
+
+  async function updateSlotData() {
+    const calendar = document.getElementById("slotCalendarSelect").value;
+    const date = document.getElementById("slotDateSelect").value; // "YYYY-MM-DD"
+    let doctors = parseInt(document.getElementById("slotDoctorCount").value, 10);
+    if (isNaN(doctors) || doctors < 0) doctors = 0;
+
+    if (!calendar || !date) {
+      alert("Please select a calendar and date.");
+      return;
+    }
+
+    const checkedSlots = slotsContainer.querySelectorAll('input[type="checkbox"]:checked');
+    if (checkedSlots.length === 0) {
+      alert("Please check at least one slot to apply capacity.");
+      return;
+    }
+    
+    const existing = await fetchExistingData();
+
+    if (!existing.slot_overrides) existing.slot_overrides = {};
+    if (!existing.slot_overrides[calendar]) existing.slot_overrides[calendar] = {};
+    if (!existing.slot_overrides[calendar][date]) existing.slot_overrides[calendar][date] = {};
+
+    let slotsUpdatedCount = 0;
+    checkedSlots.forEach(cb => {
+      const slotTime = cb.value; // "9:00 AM"
+      existing.slot_overrides[calendar][date][slotTime] = { doctors: doctors };
+      slotsUpdatedCount++;
+    });
+    
+    output.innerHTML = ""; // Clear table on update
+    await uploadData(existing, `Updated ${slotsUpdatedCount} slot capacities`);
+  }
+
+
+  // === Get Data (Renders both tables) ===
 
   async function getData() {
     const existing = await fetchExistingData();
-    renderDataTable(existing);
+    // Render tables in order
+    renderDailyTable(existing);
+    renderSlotTable(existing.slot_overrides);
   }
 
-  function renderDataTable(data) {
-    // Flatten to rows: Calendar, Day, Start, End
+  function renderDailyTable(data) {
     const rows = [];
     const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
 
     Object.keys(data).sort().forEach(cal => {
+      if (cal === 'slot_overrides') return; // Skip
+      
       const byDay = data[cal] || {};
       Object.keys(byDay)
         .sort((a, b) => (dayIndex[a] ?? 99) - (dayIndex[b] ?? 99))
         .forEach(day => {
+          // MODIFIED: Only read start and end. Ignore "doctors" even if it exists.
           const { start = "", end = "" } = byDay[day] || {};
           rows.push({ cal, day, start, end });
         });
     });
 
+    let tableHtml = '<h3>Daily Schedules</h3>';
     if (rows.length === 0) {
-      output.innerHTML = `<div class="notice">📭 No data found in the blob.</div>`;
+      tableHtml += `<div class="notice">📭 No daily schedule data found.</div>`;
+      output.innerHTML = tableHtml;
       return;
     }
 
-    const tableHtml = `
+    // MODIFIED: Removed "Doctors" column
+    tableHtml += `
       <div class="table-wrap">
-        <table aria-label="Calendar Schedules">
+        <table aria-label="Daily Calendar Schedules">
           <thead>
             <tr>
               <th>Calendar</th>
@@ -313,15 +599,66 @@
     `;
     output.innerHTML = tableHtml;
   }
+  
+  function renderSlotTable(overrides) {
+    let tableHtml = '<h3>Slot-Specific Capacities</h3>';
+    if (!overrides || Object.keys(overrides).length === 0) {
+      tableHtml += `<div class="notice">📭 No slot-specific overrides found.</div>`;
+      output.innerHTML += tableHtml; // Append to existing HTML
+      return;
+    }
 
-  function escapeHtml(str) {
-    return String(str)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    const rows = [];
+    Object.keys(overrides).sort().forEach(cal => {
+      const byDate = overrides[cal] || {};
+      Object.keys(byDate).sort().forEach(date => {
+        const bySlot = byDate[date] || {};
+        // Sort slots by time (basic text sort, can be improved)
+        Object.keys(bySlot).sort((a, b) => {
+            const aTime = a.match(/(\d+):(\d+) (AM|PM)/);
+            const bTime = b.match(/(\d+):(\d+) (AM|PM)/);
+            if (!aTime || !bTime) return a.localeCompare(b);
+            let aHour = parseInt(aTime[1]) % 12 + (aTime[3] === 'PM' ? 12 : 0);
+            let bHour = parseInt(bTime[1]) % 12 + (bTime[3] === 'PM' ? 12 : 0);
+            if (aTime[1] === '12') aHour -= 12; // Handle 12 AM/PM
+            if (bTime[1] === '12') bHour -= 12;
+            const aMin = aHour * 60 + parseInt(aTime[2]);
+            const bMin = bHour * 60 + parseInt(bTime[2]);
+            return aMin - bMin;
+        }).forEach(slotTime => {
+          const { doctors = 0 } = bySlot[slotTime];
+          rows.push({ cal, date, slotTime, doctors });
+        });
+      });
+    });
+
+    tableHtml += `
+      <div class="table-wrap">
+        <table aria-label="Slot-Specific Capacities">
+          <thead>
+            <tr>
+              <th>Calendar</th>
+              <th>Date</th>
+              <th>Slot</th>
+              <th>Doctors</th> </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td class="cal-name">${escapeHtml(r.cal)}</td>
+                <td><span class="day-badge" style="background: #eef; border-color: #dde;">${escapeHtml(r.date)}</span></td>
+                <td><span class="time-chip">${escapeHtml(r.slotTime)}</span></td>
+                <td><strong>${escapeHtml(r.doctors)}</strong></td>  
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+    // Append to the HTML already set by renderDailyTable
+    output.innerHTML += tableHtml; 
   }
+
 </script>
 
 </body>
