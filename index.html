@@ -31,29 +31,35 @@
     button:hover:not(:disabled) { background: #005a9e; transform: translateY(-1px); }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .slot-row { display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 12px; align-items: end; margin-top: 12px; padding: 12px; background: #f9fbff; border-radius: 8px; border: 1px solid #e6ecf7; }
+    .slot-row { display: grid; grid-template-columns: 2fr 2fr 1.5fr auto; gap: 12px; align-items: end; margin-top: 12px; padding: 12px; background: #f9fbff; border-radius: 8px; border: 1px solid #e6ecf7; }
     .slot-row label { margin-top: 0; font-size: 13px; }
     .slot-row select, .slot-row input { margin-top: 4px; }
-    .remove-btn { padding: 10px 16px; background: #d13438; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .remove-btn { padding: 10px 16px; background: #d13438; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; height: 42px; }
     .remove-btn:hover { background: #a52a2d; }
     .add-slot-btn { margin-top: 12px; padding: 10px; background: #107c10; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600; }
     .add-slot-btn:hover { background: #0e6b0e; }
 
     #toast { margin-top: 16px; }
     .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; }
+    .error { background: #fff0f0; border-color: #ffcccc; color: #8b0000; }
+    .success { background: #f0fff4; border-color: #ccffdd; color: #0e6b0e; }
 
     #output { margin-top: 16px; }
-    .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; }
-    table { width: 100%; border-collapse: collapse; min-width: 520px; }
-    thead th { position: sticky; top: 0; background: #f7faff; }
+    .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; max-height: 500px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 620px; }
+    thead th { position: sticky; top: 0; background: #f7faff; z-index: 10; }
     th, td { padding: 12px 14px; border-bottom: 1px solid #eef2fb; text-align: left; font-size: 14px; }
     tbody tr:hover { background: #f9fbff; }
     .cal-name { font-weight: 600; color: #0f3f77; }
     .day-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; border: 1px solid #d9e9ff; font-size: 12px; }
     .time-chip { display: inline-block; padding: 3px 7px; border-radius: 6px; background: #f5f7fb; border: 1px solid #e7ecf5; font-variant-numeric: tabular-nums; }
     td strong { color: #0078D4; font-size: 15px; }
+    .type-default { color: #0078D4; }
+    .type-slot { color: #107c10; font-weight: 600; }
 
     .section-title { font-size: 18px; font-weight: 700; color: #0078D4; margin-top: 24px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e6ecf7; }
+    
+    .info-box { background: #fff8e1; border: 1px solid #ffd54f; padding: 12px; border-radius: 6px; margin-top: 12px; font-size: 14px; color: #6b5b00; }
 
     footer { text-align: center; margin-top: 48px; padding: 15px; font-size: 14px; color: #777; background-color: #f8f9fb; }
   </style>
@@ -71,9 +77,9 @@
 
   <div class="container">
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('basic')">📅 Basic Hours</div>
-      <div class="tab" onclick="switchTab('slots')">👥 Doctor Availability</div>
-      <div class="tab" onclick="switchTab('view')">📊 View All</div>
+      <div class="tab active" onclick="switchTab(event, 'basic')">📅 Basic Hours</div>
+      <div class="tab" onclick="switchTab(event, 'slots')">👥 Doctor Availability</div>
+      <div class="tab" onclick="switchTab(event, 'view')">📊 View All</div>
     </div>
 
     <!-- TAB 1: Basic Working Hours -->
@@ -100,7 +106,11 @@
       <select id="endTime" disabled></select>
 
       <label for="doctorCount">Default Doctor Count (Capacity)</label>
-      <input type="number" id="doctorCount" min="0" value="1" disabled />
+      <input type="number" id="doctorCount" min="1" value="1" disabled />
+
+      <div class="info-box">
+        ℹ️ <strong>Note:</strong> This sets the default capacity for the entire working day. Use the "Doctor Availability" tab to configure specific time slots with different capacities.
+      </div>
 
       <div class="btn-group">
         <button onclick="updateBasicHours()">🔄 Update Hours</button>
@@ -125,12 +135,16 @@
       </select>
 
       <div id="slotsContainer" style="display: none;">
-        <div class="section-title">Time Slots</div>
+        <div class="section-title">Time Slots with Custom Capacity</div>
+        <div class="info-box">
+          ℹ️ <strong>How it works:</strong> Add specific time slots where more doctors are available. For example, if you have 2 doctors from 10 AM - 11 AM, the system will allow 2 concurrent bookings during that time.
+        </div>
         <div id="slotsList"></div>
         <button class="add-slot-btn" onclick="addSlotRow()">➕ Add Time Slot</button>
 
         <div class="btn-group">
           <button onclick="updateDoctorSlots()">💾 Save Doctor Slots</button>
+          <button onclick="clearAllSlots()" style="background: #d13438;">🗑️ Clear All Slots</button>
         </div>
       </div>
     </div>
@@ -139,7 +153,7 @@
     <div id="view-tab" class="tab-content">
       <div class="section-title">Current Configuration</div>
       <div class="btn-group">
-        <button onclick="getData()">📥 Load Data</button>
+        <button onclick="getData()">📥 Load Configuration</button>
       </div>
       <div id="output"></div>
     </div>
@@ -189,12 +203,15 @@
     return times;
   }
 
-  function switchTab(tabName) {
+  function switchTab(event, tabName) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
     event.target.classList.add('active');
     document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Clear toast when switching tabs
+    document.getElementById('toast').innerHTML = '';
   }
 
   function onCalendarChange() {
@@ -215,7 +232,26 @@
     doctorCountInput.disabled = true;
   }
 
-  function onDayChange() {
+  async function onDayChange() {
+    const calendar = document.getElementById("calendarSelect").value;
+    const day = document.getElementById("daySelect").value;
+    
+    if (!calendar || !day) return;
+    
+    // Load existing configuration for this day
+    const existing = await fetchExistingData();
+    const dayConfig = existing[calendar]?.[day];
+    
+    if (dayConfig) {
+      document.getElementById("startTime").value = dayConfig.start || "9AM";
+      document.getElementById("endTime").value = dayConfig.end || "5PM";
+      document.getElementById("doctorCount").value = dayConfig.doctors || 1;
+    } else {
+      document.getElementById("startTime").value = "9AM";
+      document.getElementById("endTime").value = "5PM";
+      document.getElementById("doctorCount").value = "1";
+    }
+    
     document.getElementById("startTime").disabled = false;
     document.getElementById("endTime").disabled = false;
     document.getElementById("doctorCount").disabled = false;
@@ -238,9 +274,12 @@
 
     document.getElementById("slotsContainer").style.display = "block";
     document.getElementById("slotsList").innerHTML = "";
+    slotCounter = 0; // Reset counter
 
     const existing = await fetchExistingData();
     const slots = existing[calendar]?.[day]?.slots || [];
+
+    console.log("Loading slots for", calendar, day, ":", slots);
 
     if (slots.length === 0) {
       addSlotRow();
@@ -251,7 +290,7 @@
     }
   }
 
-  function addSlotRow(startVal = "", endVal = "", doctorsVal = 1) {
+  function addSlotRow(startVal = "", endVal = "", doctorsVal = 2) {
     const container = document.getElementById("slotsList");
     const id = `slot-${slotCounter++}`;
     
@@ -272,8 +311,8 @@
         <select class="slot-end">${endOptions}</select>
       </div>
       <div>
-        <label>Doctors</label>
-        <input type="number" class="slot-doctors" min="1" value="${doctorsVal}" />
+        <label>Doctors Available</label>
+        <input type="number" class="slot-doctors" min="1" max="20" value="${doctorsVal}" />
       </div>
       <button class="remove-btn" onclick="removeSlotRow('${id}')">🗑️</button>
     `;
@@ -282,7 +321,24 @@
   }
 
   function removeSlotRow(id) {
-    document.getElementById(id).remove();
+    const element = document.getElementById(id);
+    if (element) {
+      element.remove();
+    }
+    
+    // If no slots left, add one empty row
+    if (document.querySelectorAll('.slot-row').length === 0) {
+      addSlotRow();
+    }
+  }
+
+  function clearAllSlots() {
+    if (confirm("Are you sure you want to clear all time slots for this day?")) {
+      document.getElementById("slotsList").innerHTML = "";
+      slotCounter = 0;
+      addSlotRow();
+      showNotice("All slots cleared. Click 'Save Doctor Slots' to confirm.", "success");
+    }
   }
 
   function buildBlobUrl() {
@@ -294,9 +350,14 @@
   async function fetchExistingData() {
     try {
       const response = await fetch(buildBlobUrl());
-      if (response.ok) return await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched data:", data);
+        return data;
+      }
       return {};
-    } catch {
+    } catch (error) {
+      console.error("Error fetching data:", error);
       return {};
     }
   }
@@ -308,8 +369,16 @@
     });
   }
 
-  function showNotice(text) {
-    document.getElementById("toast").innerHTML = `<div class="notice">${text}</div>`;
+  function showNotice(text, type = "info") {
+    const className = type === "error" ? "notice error" : type === "success" ? "notice success" : "notice";
+    document.getElementById("toast").innerHTML = `<div class="${className}">${text}</div>`;
+    
+    // Auto-hide success messages after 5 seconds
+    if (type === "success") {
+      setTimeout(() => {
+        document.getElementById("toast").innerHTML = "";
+      }, 5000);
+    }
   }
 
   function nowStamp() {
@@ -326,19 +395,29 @@
   async function uploadData(data, action) {
     try {
       setButtonsDisabled(true);
+      console.log("Uploading data:", JSON.stringify(data, null, 2));
+      
       const response = await fetch(buildBlobUrl(), {
         method: "PUT",
-        headers: { "x-ms-blob-type": "BlockBlob", "Content-Type": "application/json" },
+        headers: { 
+          "x-ms-blob-type": "BlockBlob", 
+          "Content-Type": "application/json" 
+        },
         body: JSON.stringify(data, null, 2)
       });
 
       if (response.ok) {
-        showNotice(`✅ ${action} at <strong>${nowStamp()}</strong>`);
+        showNotice(`✅ ${action} successfully at <strong>${nowStamp()}</strong>`, "success");
+        return true;
       } else {
-        showNotice("❌ Error: " + (await response.text()));
+        const errorText = await response.text();
+        showNotice(`❌ Error: ${errorText}`, "error");
+        return false;
       }
     } catch (err) {
-      showNotice("❌ Exception: " + err.message);
+      console.error("Upload error:", err);
+      showNotice(`❌ Exception: ${err.message}`, "error");
+      return false;
     } finally {
       setButtonsDisabled(false);
     }
@@ -365,11 +444,14 @@
     let doctors = parseInt(document.getElementById("doctorCount").value, 10);
 
     if (!calendar || !day || !start || !end) {
-      alert("Please select all fields!");
+      showNotice("❌ Please select all fields!", "error");
       return;
     }
 
-    if (isNaN(doctors) || doctors < 0) doctors = 0;
+    if (isNaN(doctors) || doctors < 1) {
+      showNotice("❌ Doctor count must be at least 1!", "error");
+      return;
+    }
 
     const existing = await fetchExistingData();
     if (!existing[calendar]) existing[calendar] = {};
@@ -378,7 +460,8 @@
     const currentSlots = existing[calendar][day]?.slots || [];
     existing[calendar][day] = { start, end, doctors, slots: currentSlots };
 
-    await uploadData(existing, "Updated Basic Hours");
+    console.log("Updating basic hours:", existing[calendar][day]);
+    await uploadData(existing, "Basic hours updated");
   }
 
   async function updateDoctorSlots() {
@@ -386,7 +469,7 @@
     const day = document.getElementById("slotDaySelect").value;
 
     if (!calendar || !day) {
-      alert("Please select calendar and day!");
+      showNotice("❌ Please select calendar and day!", "error");
       return;
     }
 
@@ -398,23 +481,42 @@
       const end = toHourLabel(row.querySelector('.slot-end').value);
       const doctors = parseInt(row.querySelector('.slot-doctors').value, 10);
 
-      if (start && end && doctors > 0) {
-        slots.push({ start, end, doctors });
+      console.log("Processing slot:", { start, end, doctors });
+
+      if (!start || !end) {
+        showNotice("❌ Please fill in all time fields!", "error");
+        return;
       }
+
+      if (isNaN(doctors) || doctors < 1) {
+        showNotice("❌ Doctor count must be at least 1 for each slot!", "error");
+        return;
+      }
+
+      slots.push({ start, end, doctors });
     }
 
-    if (slots.length === 0) {
-      alert("Please add at least one valid time slot!");
-      return;
-    }
+    console.log("All slots to save:", slots);
 
     const existing = await fetchExistingData();
     if (!existing[calendar]) existing[calendar] = {};
-    if (!existing[calendar][day]) existing[calendar][day] = { start: "9AM", end: "5PM", doctors: 1 };
     
+    // Initialize day config if it doesn't exist
+    if (!existing[calendar][day]) {
+      existing[calendar][day] = { start: "9AM", end: "5PM", doctors: 1, slots: [] };
+    }
+    
+    // Update slots array
     existing[calendar][day].slots = slots;
 
-    await uploadData(existing, "Updated Doctor Slots");
+    console.log("Final data structure:", existing[calendar][day]);
+    
+    const success = await uploadData(existing, "Doctor slots updated");
+    
+    if (success) {
+      // Reload the slots to confirm they were saved
+      setTimeout(() => loadExistingSlots(), 1000);
+    }
   }
 
   async function getData() {
@@ -433,25 +535,34 @@
         .forEach(day => {
           const { start = "", end = "", doctors = 1, slots = [] } = byDay[day] || {};
           
+          // Add the default/base row first
+          rows.push({ 
+            cal, 
+            day, 
+            start, 
+            end, 
+            doctors, 
+            isSlot: false 
+          });
+          
+          // Then add any custom slots
           if (slots.length > 0) {
-            slots.forEach((slot, idx) => {
+            slots.forEach((slot) => {
               rows.push({
-                cal: idx === 0 ? cal : "",
-                day: idx === 0 ? day : "",
+                cal: "",
+                day: "",
                 start: slot.start,
                 end: slot.end,
                 doctors: slot.doctors,
                 isSlot: true
               });
             });
-          } else {
-            rows.push({ cal, day, start, end, doctors, isSlot: false });
           }
         });
     });
 
     if (rows.length === 0) {
-      document.getElementById("output").innerHTML = `<div class="notice">📭 No data found in the blob.</div>`;
+      document.getElementById("output").innerHTML = `<div class="notice">📭 No configuration data found in the blob.</div>`;
       return;
     }
 
@@ -476,7 +587,7 @@
                 <td><span class="time-chip">${escapeHtml(r.start)}</span></td>
                 <td><span class="time-chip">${escapeHtml(r.end)}</span></td>
                 <td><strong>${escapeHtml(r.doctors)}</strong></td>
-                <td>${r.isSlot ? '🎯 Slot' : '📅 Default'}</td>
+                <td class="${r.isSlot ? 'type-slot' : 'type-default'}">${r.isSlot ? '🎯 Custom Slot' : '📅 Base Hours'}</td>
               </tr>
             `).join("")}
           </tbody>

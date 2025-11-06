@@ -1,318 +1,681 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8" />
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+
+  <link rel="manifest" href="./site.webmanifest">
+
   <title>Still Waters Admin Panel</title>
+
   <style>
+
     body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f3f6fb; margin: 0; padding: 0; }
+
     header { background: linear-gradient(90deg, #0078D4, #005a9e); color: white; display: flex; align-items: center; justify-content: center; gap: 14px; padding: 18px 24px; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
+
     .logo-section img { height: 52px; width: 52px; border-radius: 50%; background: white; object-fit: cover; box-shadow: 0 2px 6px rgba(255,255,255,0.2); }
+
     .header-text { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
     .header-text h1 { margin: 0; font-size: 22px; letter-spacing: 0.3px; }
+
     .header-text span { font-size: 14px; opacity: 0.95; }
 
+
+
     .container { max-width: 750px; background: white; margin: 40px auto; padding: 32px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+
     label { display: block; font-weight: 600; color: #333; margin-top: 18px; }
-    select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; }
+
+    /* Ensure inputs and selects take full width */
+
+    select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; box-sizing: border-box; }
+
     select:focus, input:focus { border-color: #0078D4; outline: none; box-shadow: 0 0 5px rgba(0,120,212,0.3); background-color: #fff; }
+
     .btn-group { margin-top: 26px; display: flex; gap: 12px; }
+
     button { flex: 1; padding: 12px; border: none; border-radius: 6px; background: #0078D4; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+
     button:hover { background: #005a9e; transform: translateY(-1px); }
 
+
+
     /* Toast (separate from table) */
+
     #toast { margin-top: 16px; }
+
     .notice { padding: 12px 14px; border-radius: 8px; background: #f0f4ff; border: 1px solid #ccdfff; color: #1f3b78; font-weight: 500; }
 
+
+
     /* Output/Table area */
+
     #output { margin-top: 16px; }
+
     .table-wrap { margin-top: 12px; overflow-x: auto; background: #fff; border: 1px solid #e6ecf7; border-radius: 10px; }
+
     table { width: 100%; border-collapse: collapse; min-width: 520px; }
+
     thead th { position: sticky; top: 0; background: #f7faff; }
+
     th, td { padding: 12px 14px; border-bottom: 1px solid #eef2fb; text-align: left; font-size: 14px; }
+
     tbody tr:hover { background: #f9fbff; }
+
     .cal-name { font-weight: 600; color: #0f3f77; }
+
     .day-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; border: 1px solid #d9e9ff; font-size: 12px; }
+
     .time-chip { display: inline-block; padding: 3px 7px; border-radius: 6px; background: #f5f7fb; border: 1px solid #e7ecf5; font-variant-numeric: tabular-nums; }
+
+    /* Style for the new Doctors column */
+
+    td strong { color: #0078D4; font-size: 15px; }
+
+
+
+
 
     footer { text-align: center; margin-top: 48px; padding: 15px; font-size: 14px; color: #777; background-color: #f8f9fb; }
 
+
+
     @media (max-width: 700px) {
+
       .container { margin: 24px; padding: 22px; }
+
       .header-text h1 { font-size: 18px; }
+
       .header-text span { font-size: 13px; }
+
     }
+
   </style>
+
 </head>
+
 <body>
-  <!-- ===== HEADER ===== -->
+
   <header>
+
     <div class="logo-section">
+
       <img src="logo.png" alt="Still Waters Logo" />
+
     </div>
+
     <div class="header-text">
+
       <h1>Still Waters Professional Counseling Services, Inc</h1>
+
       <span>Admin Panel – Calendar Configuration</span>
+
     </div>
+
   </header>
 
-  <!-- ===== MAIN PANEL ===== -->
+
+
   <div class="container">
+
     <label for="calendarSelect">Select Calendar</label>
+
     <select id="calendarSelect" onchange="onCalendarChange()">
+
       <option value="">-- Select Calendar --</option>
+
       <option value="Clinic Schedule">Clinic Schedule</option>
+
       <option value="Augusta Clinic Scheduler">Augusta Clinic Scheduler</option>
+
       <option value="Macon Clinic Schedule (Test)">Macon Clinic Schedule (Test)</option>
+
     </select>
+
+
 
     <label for="daySelect">Select Day</label>
+
     <select id="daySelect" onchange="onDayChange()" disabled>
+
       <option value="">-- Select Day --</option>
+
     </select>
 
+
+
     <label for="startTime">Start Time</label>
+
     <select id="startTime" disabled></select>
 
+
+
     <label for="endTime">End Time</label>
+
     <select id="endTime" disabled></select>
 
+
+
+    <label for="doctorCount">Doctor Count (Capacity)</label>
+
+    <input type="number" id="doctorCount" min="0" value="1" disabled />
+
+    
+
     <div class="btn-group">
+
       <button onclick="updateData()">🔄 Update</button>
+
       <button onclick="getData()">📥 Get</button>
+
     </div>
 
-    <!-- Success/Error notice lives here and won't be overwritten by the table -->
+
+
     <div id="toast"></div>
 
-    <!-- Table output -->
+
+
     <div id="output"></div>
+
   </div>
+
+
 
   <footer>© 2025 Still Waters Professional Counseling Services, Inc — Admin Panel</footer>
 
+
+
 <script>
+
   // === Your blob SAS URL ===
+
   const containerUrl =
+
     "https://jsondata1.blob.core.windows.net/durastion/duration.json?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2030-04-02T01:25:11Z&st=2025-10-07T17:10:11Z&spr=https,http&sig=zxKkoYOveKqc3I%2Bzz49eG5x%2FOjMV%2BJXHtsFoTcPENB0%3D";
+
   const blobName = "duration.json";
 
+
+
   const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
   const startSelect = document.getElementById("startTime");
+
   const endSelect = document.getElementById("endTime");
+
   const daySelect = document.getElementById("daySelect");
+
+  const doctorCountInput = document.getElementById("doctorCount"); // <-- Get new input
+
   const output = document.getElementById("output");
+
   const toast = document.getElementById("toast");
 
+
+
   // Helper: timestamp string
+
   function nowStamp() {
+
     try {
+
       return new Date().toLocaleString(undefined, {
+
         year: "numeric", month: "short", day: "2-digit",
+
         hour: "2-digit", minute: "2-digit", second: "2-digit"
+
       });
+
     } catch {
+
       return new Date().toISOString();
+
     }
+
   }
+
+
 
   // Populate day dropdown
+
   days.forEach(day => {
+
     const opt = document.createElement("option");
+
     opt.value = day;
+
     opt.textContent = day;
+
     daySelect.appendChild(opt);
+
   });
+
+
 
   // Generate HOURLY time options (6AM–10PM) and display like "6AM", "12PM", etc.
+
   function generateHourOptions() {
+
     const times = [];
+
     for (let h = 6; h <= 22; h++) {
+
       const hour12 = (h % 12 === 0) ? 12 : (h % 12);
+
       const ampm = h < 12 ? "AM" : "PM";
+
       times.push(`${hour12}${ampm}`);
+
     }
+
     return times;
+
   }
+
+
 
   const hourTimes = generateHourOptions();
+
   hourTimes.forEach(t => {
+
     const o1 = document.createElement("option"); o1.value = t; o1.textContent = t; startSelect.appendChild(o1);
+
     const o2 = document.createElement("option"); o2.value = t; o2.textContent = t; endSelect.appendChild(o2);
+
   });
 
+
+
   function onCalendarChange() {
+
     const calendar = document.getElementById("calendarSelect").value;
+
+
+
+    // Reset and disable day/time/doctors fields when calendar changes
+
+    daySelect.value = "";
+
+    startSelect.value = "";
+
+    endSelect.value = "";
+
+    doctorCountInput.value = "1"; // <-- Reset doctor count
+
+
+
     daySelect.disabled = !calendar;
+
     startSelect.disabled = true;
+
     endSelect.disabled = true;
+
+    doctorCountInput.disabled = true; // <-- Disable doctor count
+
   }
+
+
+
   function onDayChange() {
+
     startSelect.disabled = false;
+
     endSelect.disabled = false;
+
+    doctorCountInput.disabled = false; // <-- Enable doctor count
+
   }
+
+
 
   // Build URL to the blob with SAS
+
   function buildBlobUrl() {
+
     const base = containerUrl.replace(/\?.*/, "");
+
     const sas = containerUrl.match(/\?.*/)[0];
+
     return `${base}/${blobName}${sas}`;
+
   }
+
+
 
   async function fetchExistingData() {
+
     try {
+
       const response = await fetch(buildBlobUrl());
+
       if (response.ok) return await response.json();
+
       return {};
+
     } catch {
+
       return {};
+
     }
+
   }
+
+
 
   function setButtonsDisabled(disabled) {
+
     for (const btn of document.querySelectorAll(".btn-group button")) {
+
       btn.disabled = disabled;
+
       btn.style.opacity = disabled ? 0.7 : 1;
+
       btn.style.cursor = disabled ? "not-allowed" : "pointer";
+
     }
+
   }
+
+
 
   // Toast (does not get overwritten by table)
+
   function showNotice(text) {
+
     toast.innerHTML = `<div class="notice">${text}</div>`;
+
   }
+
+
 
   async function uploadData(data, action) {
+
     try {
+
       setButtonsDisabled(true);
+
       const response = await fetch(buildBlobUrl(), {
+
         method: "PUT",
+
         headers: { "x-ms-blob-type": "BlockBlob", "Content-Type": "application/json" },
+
         body: JSON.stringify(data, null, 2)
+
       });
 
+
+
       if (response.ok) {
+
         // ✅ On update we only show the success toast with a timestamp
+
         showNotice(`✅ ${action} at <strong>${nowStamp()}</strong>`);
+
       } else {
+
         showNotice("❌ Error: " + (await response.text()));
+
       }
+
     } catch (err) {
+
       showNotice("❌ Exception: " + err.message);
+
     } finally {
+
       setButtonsDisabled(false);
+
     }
+
   }
+
+
 
   // Normalize to "9AM"/"12PM" etc. (in case options ever change later)
+
   function toHourLabel(val) {
+
     if (!val) return val;
+
     // already "9AM" style
+
     if (/^\d{1,2}(AM|PM)$/.test(val)) return val;
+
     // convert "9:00AM" -> "9AM", keep ":30" if ever present
+
     const m = val.match(/^(\d{1,2})(?::(00|30))?(AM|PM)$/);
+
     if (m) {
+
       const hour = m[1];
+
       const mins = m[2];
+
       const ap = m[3];
+
       return mins && mins !== "00" ? `${hour}:${mins}${ap}` : `${hour}${ap}`;
+
     }
+
     return val;
+
   }
+
+
 
   // === UPDATE-ONLY behavior ===
+
   async function updateData() {
+
     const calendar = document.getElementById("calendarSelect").value;
+
     const day = document.getElementById("daySelect").value;
+
     let start = document.getElementById("startTime").value;
+
     let end = document.getElementById("endTime").value;
 
-    if (!calendar || !day || !start || !end) {
-      alert("Please select all fields!");
-      return;
+    // === NEW: Get doctor count ===
+
+    let doctors = parseInt(doctorCountInput.value, 10);
+
+    if (isNaN(doctors) || doctors < 0) {
+
+      doctors = 0; // Treat invalid as 0 (closed)
+
     }
+
+
+
+    if (!calendar || !day || !start || !end) {
+
+      alert("Please select all fields!");
+
+      return;
+
+    }
+
+
 
     // Enforce "9AM"/"12PM" style
+
     start = toHourLabel(start);
+
     end   = toHourLabel(end);
 
+
+
     const existing = await fetchExistingData();
+
     if (!existing[calendar]) {
-      showNotice(`❌ Calendar '${calendar}' not found in blob. Please initialize with the default JSON first.`);
-      return;
-    }
-    if (!existing[calendar][day]) {
-      showNotice(`❌ Day '${day}' not found under '${calendar}'. Make sure the default JSON contains all days.`);
-      return;
+
+      // If the calendar (e.g., "Clinic Schedule") doesn't exist yet, create it.
+
+      existing[calendar] = {};
+
     }
 
-    existing[calendar][day] = { start, end };
+    
+
+    // === NEW: Save start, end, and doctors ===
+
+    existing[calendar][day] = { start, end, doctors };
+
+
 
     // Clear table area (we only want the toast on update)
+
     output.innerHTML = "";
+
     await uploadData(existing, "Updated");
+
   }
+
+
 
   async function getData() {
+
     const existing = await fetchExistingData();
+
     renderDataTable(existing);
+
   }
+
+
 
   function renderDataTable(data) {
-    // Flatten to rows: Calendar, Day, Start, End
+
+    // Flatten to rows: Calendar, Day, Start, End, Doctors
+
     const rows = [];
+
     const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
 
+
+
     Object.keys(data).sort().forEach(cal => {
+
       const byDay = data[cal] || {};
+
       Object.keys(byDay)
+
         .sort((a, b) => (dayIndex[a] ?? 99) - (dayIndex[b] ?? 99))
+
         .forEach(day => {
-          const { start = "", end = "" } = byDay[day] || {};
-          rows.push({ cal, day, start, end });
+
+          // === NEW: Get doctors, default to 1 for old data ===
+
+          const { start = "", end = "", doctors = 1 } = byDay[day] || {};
+
+          rows.push({ cal, day, start, end, doctors });
+
         });
+
     });
 
+
+
     if (rows.length === 0) {
+
       output.innerHTML = `<div class="notice">📭 No data found in the blob.</div>`;
+
       return;
+
     }
 
+
+
     const tableHtml = `
+
       <div class="table-wrap">
+
         <table aria-label="Calendar Schedules">
+
           <thead>
+
             <tr>
+
               <th>Calendar</th>
+
               <th>Day</th>
+
               <th>Start</th>
+
               <th>End</th>
-            </tr>
+
+              <th>Doctors</th> </tr>
+
           </thead>
+
           <tbody>
+
             ${rows.map(r => `
+
               <tr>
+
                 <td class="cal-name">${escapeHtml(r.cal)}</td>
+
                 <td><span class="day-badge">${escapeHtml(r.day)}</span></td>
+
                 <td><span class="time-chip">${escapeHtml(r.start)}</span></td>
+
                 <td><span class="time-chip">${escapeHtml(r.end)}</span></td>
+
+                <td><strong>${escapeHtml(r.doctors)}</strong></td> 
+
               </tr>
+
             `).join("")}
+
           </tbody>
+
         </table>
+
       </div>
+
     `;
+
     output.innerHTML = tableHtml;
+
   }
+
+
 
   function escapeHtml(str) {
+
     return String(str)
+
       .replaceAll("&", "&amp;")
+
       .replaceAll("<", "&lt;")
+
       .replaceAll(">", "&gt;")
+
       .replaceAll('"', "&quot;")
+
       .replaceAll("'", "&#039;");
+
   }
+
 </script>
 
+
+
 </body>
+
 </html>
