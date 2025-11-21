@@ -22,6 +22,13 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* New Styles for Instructions */
+    .instruction-box { background: #f8f9fa; border-left: 5px solid #0078D4; padding: 20px; margin-bottom: 25px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .instruction-box h3 { margin: 0 0 10px 0; color: #2b2b2b; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .instruction-box p { margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5; }
+    .instruction-box ul { margin: 0; padding-left: 20px; color: #555; font-size: 14px; }
+    .instruction-box li { margin-bottom: 6px; }
+
     label { display: block; font-weight: 600; color: #333; margin-top: 18px; }
     select, input { width: 100%; padding: 10px 12px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; transition: 0.3s; background-color: #fafafa; box-sizing: border-box; }
     select:focus, input:focus { border-color: #0078D4; outline: none; box-shadow: 0 0 5px rgba(0,120,212,0.3); background-color: #fff; }
@@ -57,7 +64,7 @@
     .type-default { color: #0078D4; }
     .type-slot { color: #107c10; font-weight: 600; }
 
-    .section-title { font-size: 18px; font-weight: 700; color: #0078D4; margin-top: 24px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e6ecf7; }
+    .section-title { font-size: 18px; font-weight: 700; color: #0078D4; margin-top: 12px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e6ecf7; }
     
     .info-box { background: #fff8e1; border: 1px solid #ffd54f; padding: 12px; border-radius: 6px; margin-top: 12px; font-size: 14px; color: #6b5b00; }
 
@@ -82,8 +89,17 @@
       <div class="tab" onclick="switchTab(event, 'view')">📊 View All</div>
     </div>
 
-    <!-- TAB 1: Basic Working Hours -->
     <div id="basic-tab" class="tab-content active">
+      <div class="instruction-box">
+        <h3>📋 Step 1: Set Daily Operating Hours</h3>
+        <p>Use this section to define the <strong>standard opening and closing times</strong> for the clinic for a specific day.</p>
+        <ul>
+            <li><strong>Select a Calendar</strong> and a <strong>Day</strong> to begin.</li>
+            <li>Set the <strong>Start Time</strong> (Opening) and <strong>End Time</strong> (Closing).</li>
+            <li><strong>Default Doctor Count:</strong> Enter the minimum number of doctors available throughout the entire day. (e.g., Enter '1' if there is always at least one doctor present).</li>
+        </ul>
+      </div>
+
       <div class="section-title">Configure Basic Working Hours</div>
       
       <label for="calendarSelect">Select Calendar</label>
@@ -106,7 +122,7 @@
       <select id="endTime" disabled></select>
 
       <label for="doctorCount">Default Doctor Count (Capacity)</label>
-      <input type="number" id="doctorCount" min="1" value="1" disabled />
+      <input type="number" id="doctorCount" min="1" max="5" value="1" disabled />
 
       <div class="info-box">
         ℹ️ <strong>Note:</strong> This sets the default capacity for the entire working day. Use the "Doctor Availability" tab to configure specific time slots with different capacities.
@@ -117,14 +133,22 @@
       </div>
     </div>
 
-    <!-- TAB 2: Doctor Slot Configuration -->
     <div id="slots-tab" class="tab-content">
+        <div class="instruction-box">
+            <h3>⚡ Step 2: Increase Capacity for Specific Times</h3>
+            <p>Use this section if you have <strong>more than one doctor</strong> working during specific hours of the day.</p>
+            <ul>
+                <li>This allows you to handle overlapping shifts.</li>
+                <li><strong>Example:</strong> If your Basic Hours are 9 AM - 5 PM (1 Doctor), but a second doctor comes in from 1 PM - 4 PM, you would add a slot here for <strong>1 PM to 4 PM with 2 Doctors</strong>.</li>
+                <li>The system will automatically use the highest number of doctors you enter for any given time.</li>
+            </ul>
+        </div>
+
       <div class="section-title">Configure Doctor Availability by Time Slot</div>
       
       <label for="slotCalendarSelect">Select Calendar</label>
       <select id="slotCalendarSelect" onchange="onSlotCalendarChange()">
         <option value="">-- Select Calendar --</option>
-        <option value="Clinic Schedule">Clinic Schedule</option>
         <option value="Augusta Clinic Scheduler">Augusta Clinic Scheduler</option>
         <option value="Macon Clinic Schedule (Test)">Macon Clinic Schedule (Test)</option>
       </select>
@@ -149,8 +173,17 @@
       </div>
     </div>
 
-    <!-- TAB 3: View All Data -->
     <div id="view-tab" class="tab-content">
+        <div class="instruction-box">
+            <h3>📊 Review Schedule Configuration</h3>
+            <p>Click the button below to load a visual summary of the current schedule.</p>
+            <ul>
+                <li>The table below combines your "Basic Hours" and "Doctor Availability" settings.</li>
+                <li>It calculates exactly how many doctors are available at every specific time block.</li>
+                <li>Use this to verify that your shifts are set up correctly before patients begin booking.</li>
+            </ul>
+        </div>
+
       <div class="section-title">Current Configuration</div>
       <div class="btn-group">
         <button onclick="getData()">📥 Load Configuration</button>
@@ -210,7 +243,6 @@
     event.target.classList.add('active');
     document.getElementById(`${tabName}-tab`).classList.add('active');
     
-    // Clear toast when switching tabs
     document.getElementById('toast').innerHTML = '';
   }
 
@@ -238,7 +270,6 @@
     
     if (!calendar || !day) return;
     
-    // Load existing configuration for this day
     const existing = await fetchExistingData();
     const dayConfig = existing[calendar]?.[day];
     
@@ -274,12 +305,10 @@
 
     document.getElementById("slotsContainer").style.display = "block";
     document.getElementById("slotsList").innerHTML = "";
-    slotCounter = 0; // Reset counter
+    slotCounter = 0; 
 
     const existing = await fetchExistingData();
     const slots = existing[calendar]?.[day]?.slots || [];
-
-    console.log("Loading slots for", calendar, day, ":", slots);
 
     if (slots.length === 0) {
       addSlotRow();
@@ -325,8 +354,6 @@
     if (element) {
       element.remove();
     }
-    
-    // If no slots left, add one empty row
     if (document.querySelectorAll('.slot-row').length === 0) {
       addSlotRow();
     }
@@ -352,7 +379,6 @@
       const response = await fetch(buildBlobUrl());
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched data:", data);
         return data;
       }
       return {};
@@ -372,8 +398,6 @@
   function showNotice(text, type = "info") {
     const className = type === "error" ? "notice error" : type === "success" ? "notice success" : "notice";
     document.getElementById("toast").innerHTML = `<div class="${className}">${text}</div>`;
-    
-    // Auto-hide success messages after 5 seconds
     if (type === "success") {
       setTimeout(() => {
         document.getElementById("toast").innerHTML = "";
@@ -395,8 +419,6 @@
   async function uploadData(data, action) {
     try {
       setButtonsDisabled(true);
-      console.log("Uploading data:", JSON.stringify(data, null, 2));
-      
       const response = await fetch(buildBlobUrl(), {
         method: "PUT",
         headers: { 
@@ -456,11 +478,9 @@
     const existing = await fetchExistingData();
     if (!existing[calendar]) existing[calendar] = {};
     
-    // Preserve existing slots if any
     const currentSlots = existing[calendar][day]?.slots || [];
     existing[calendar][day] = { start, end, doctors, slots: currentSlots };
 
-    console.log("Updating basic hours:", existing[calendar][day]);
     await uploadData(existing, "Basic hours updated");
   }
 
@@ -481,40 +501,26 @@
       const end = toHourLabel(row.querySelector('.slot-end').value);
       const doctors = parseInt(row.querySelector('.slot-doctors').value, 10);
 
-      console.log("Processing slot:", { start, end, doctors });
-
       if (!start || !end) {
         showNotice("❌ Please fill in all time fields!", "error");
         return;
       }
-
       if (isNaN(doctors) || doctors < 1) {
         showNotice("❌ Doctor count must be at least 1 for each slot!", "error");
         return;
       }
-
       slots.push({ start, end, doctors });
     }
 
-    console.log("All slots to save:", slots);
-
     const existing = await fetchExistingData();
     if (!existing[calendar]) existing[calendar] = {};
-    
-    // Initialize day config if it doesn't exist
     if (!existing[calendar][day]) {
       existing[calendar][day] = { start: "9AM", end: "5PM", doctors: 1, slots: [] };
     }
-    
-    // Update slots array
     existing[calendar][day].slots = slots;
-
-    console.log("Final data structure:", existing[calendar][day]);
     
     const success = await uploadData(existing, "Doctor slots updated");
-    
     if (success) {
-      // Reload the slots to confirm they were saved
       setTimeout(() => loadExistingSlots(), 1000);
     }
   }
@@ -522,6 +528,104 @@
   async function getData() {
     const existing = await fetchExistingData();
     renderDataTable(existing);
+  }
+
+  // ============================================================
+  // NEW LOGIC: FLATTEN OVERLAPPING SLOTS FOR DISPLAY
+  // ============================================================
+
+  function parseTime(timeStr) {
+    if (!timeStr) return -1;
+    const match = timeStr.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/i);
+    if (!match) return -1;
+    
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2] ? parseInt(match[2], 10) : 0;
+    const ampm = match[3].toUpperCase();
+
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+
+    return (hours * 60) + minutes;
+  }
+
+  function formatMinToTime(totalMinutes) {
+    let h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    const ampm = h >= 12 ? "PM" : "AM";
+    
+    h = h % 12;
+    if (h === 0) h = 12;
+    
+    const minStr = m === 0 ? "" : `:${m.toString().padStart(2, '0')}`;
+    return `${h}${minStr}${ampm}`;
+  }
+
+  function calculateBreakdown(dayConfig) {
+    const { start, end, doctors, slots = [] } = dayConfig;
+    
+    const baseStart = parseTime(start);
+    const baseEnd = parseTime(end);
+    const baseDocs = parseInt(doctors || 1, 10);
+
+    let boundaries = new Set();
+    if (baseStart !== -1 && baseEnd !== -1) {
+      boundaries.add(baseStart);
+      boundaries.add(baseEnd);
+    }
+
+    const validSlots = slots.map(s => ({
+      start: parseTime(s.start),
+      end: parseTime(s.end),
+      doctors: parseInt(s.doctors, 10)
+    })).filter(s => s.start !== -1 && s.end !== -1);
+
+    validSlots.forEach(s => {
+      boundaries.add(s.start);
+      boundaries.add(s.end);
+    });
+
+    const sortedPoints = Array.from(boundaries).sort((a, b) => a - b);
+    const segments = [];
+
+    for (let i = 0; i < sortedPoints.length - 1; i++) {
+      const segStart = sortedPoints[i];
+      const segEnd = sortedPoints[i+1];
+      const midPoint = (segStart + segEnd) / 2;
+
+      let activeDocs = 0;
+      let type = '';
+      
+      // Check for slots (highest doc count wins)
+      const activeSlot = validSlots
+        .filter(s => midPoint >= s.start && midPoint < s.end)
+        .sort((a, b) => b.doctors - a.doctors)[0];
+
+      if (activeSlot) {
+        activeDocs = activeSlot.doctors;
+        type = 'Custom Slot';
+      } else if (baseStart !== -1 && baseEnd !== -1 && midPoint >= baseStart && midPoint < baseEnd) {
+        activeDocs = baseDocs;
+        type = 'Base Hours';
+      }
+
+      if (activeDocs > 0) {
+        // Merge adjacent segments if identical stats
+        const prev = segments[segments.length - 1];
+        if (prev && prev.doctors === activeDocs && prev.type === type) {
+          prev.end = segEnd; 
+        } else {
+          segments.push({
+            start: segStart,
+            end: segEnd,
+            doctors: activeDocs,
+            type: type
+          });
+        }
+      }
+    }
+
+    return segments;
   }
 
   function renderDataTable(data) {
@@ -533,36 +637,27 @@
       Object.keys(byDay)
         .sort((a, b) => (dayIndex[a] ?? 99) - (dayIndex[b] ?? 99))
         .forEach(day => {
-          const { start = "", end = "", doctors = 1, slots = [] } = byDay[day] || {};
-          
-          // Add the default/base row first
-          rows.push({ 
-            cal, 
-            day, 
-            start, 
-            end, 
-            doctors, 
-            isSlot: false 
-          });
-          
-          // Then add any custom slots
-          if (slots.length > 0) {
-            slots.forEach((slot) => {
-              rows.push({
-                cal: "",
-                day: "",
-                start: slot.start,
-                end: slot.end,
-                doctors: slot.doctors,
-                isSlot: true
-              });
+          const dayConfig = byDay[day];
+          const segments = calculateBreakdown(dayConfig);
+
+          if (segments.length === 0) return;
+
+          segments.forEach((seg, index) => {
+            rows.push({
+              cal: index === 0 ? cal : "", 
+              day: index === 0 ? day : "", 
+              start: formatMinToTime(seg.start),
+              end: formatMinToTime(seg.end),
+              doctors: seg.doctors,
+              type: seg.type,
+              isSlot: seg.type === 'Custom Slot'
             });
-          }
+          });
         });
     });
 
     if (rows.length === 0) {
-      document.getElementById("output").innerHTML = `<div class="notice">📭 No configuration data found in the blob.</div>`;
+      document.getElementById("output").innerHTML = `<div class="notice">📭 No active schedule configuration found.</div>`;
       return;
     }
 
@@ -571,12 +666,12 @@
         <table>
           <thead>
             <tr>
-              <th>Calendar</th>
-              <th>Day</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Doctors</th>
-              <th>Type</th>
+              <th style="width: 25%">Calendar</th>
+              <th style="width: 15%">Day</th>
+              <th style="width: 15%">Start</th>
+              <th style="width: 15%">End</th>
+              <th style="width: 10%">Doctors</th>
+              <th style="width: 20%">Source</th>
             </tr>
           </thead>
           <tbody>
@@ -587,7 +682,9 @@
                 <td><span class="time-chip">${escapeHtml(r.start)}</span></td>
                 <td><span class="time-chip">${escapeHtml(r.end)}</span></td>
                 <td><strong>${escapeHtml(r.doctors)}</strong></td>
-                <td class="${r.isSlot ? 'type-slot' : 'type-default'}">${r.isSlot ? '🎯 Custom Slot' : '📅 Base Hours'}</td>
+                <td class="${r.isSlot ? 'type-slot' : 'type-default'}">
+                   ${r.isSlot ? '⚡ Enhanced Capacity' : '📅 Standard Shift'}
+                </td>
               </tr>
             `).join("")}
           </tbody>
@@ -606,7 +703,6 @@
       .replaceAll("'", "&#039;");
   }
 
-  // Initialize on load
   initializeDropdowns();
 </script>
 </body>
