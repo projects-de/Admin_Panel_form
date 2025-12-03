@@ -120,9 +120,10 @@
 
       <label for="endTime">End Time</label>
       <select id="endTime" disabled></select>
-
-      <label for="doctorCount">Default Doctor Count (Capacity)</label>
-      <input type="number" id="doctorCount" min="1" max="5" value="1" disabled />
+<div id="doctorCountWrapper">
+    <label for="doctorCount">Default Doctor Count (Capacity)</label>
+    <input type="number" id="doctorCount" min="1" max="5" value="1" disabled />
+</div>
 
       <div class="info-box">
         ℹ️ <strong>Note:</strong> This sets the default capacity for the entire working day. Use the "Doctor Availability" tab to configure specific time slots with different capacities.
@@ -246,23 +247,34 @@
     document.getElementById('toast').innerHTML = '';
   }
 
+  // UPDATED: Sets doctor count to empty instead of 1
   function onCalendarChange() {
     const calendar = document.getElementById("calendarSelect").value;
     const daySelect = document.getElementById("daySelect");
     const startSelect = document.getElementById("startTime");
     const endSelect = document.getElementById("endTime");
     const doctorCountInput = document.getElementById("doctorCount");
+    const doctorCountWrapper = document.getElementById("doctorCountWrapper");
 
     daySelect.value = "";
     startSelect.value = "";
     endSelect.value = "";
     doctorCountInput.value = "1";
 
+    // Enable/disable day selection as before
     daySelect.disabled = !calendar;
     startSelect.disabled = true;
     endSelect.disabled = true;
     doctorCountInput.disabled = true;
-  }
+
+    // 🔥 NEW LOGIC:
+    // Hide doctor count ONLY when "Clinic Schedule" is selected
+    if (calendar === "Clinic Schedule") {
+        doctorCountWrapper.style.display = "none";
+    } else {
+        doctorCountWrapper.style.display = "block";
+    }
+}
 
   async function onDayChange() {
     const calendar = document.getElementById("calendarSelect").value;
